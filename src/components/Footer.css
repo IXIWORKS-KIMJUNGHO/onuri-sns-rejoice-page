@@ -1,0 +1,93 @@
+/* ===== Footer Styles ===== */
+.footer {
+  background-color: var(--color-text);
+  color: var(--color-white);
+  padding: var(--spacing-xl) 0 var(--spacing-md);
+}
+
+.footer__container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.footer__content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.footer__section {
+  text-align: center;
+}
+
+.footer__title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-white);
+}
+
+.footer__text {
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.footer__link {
+  font-size: var(--font-size-xs);
+  color: var(--color-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer__link:hover {
+  color: var(--color-white);
+  text-decoration: underline;
+}
+
+.footer__bottom {
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.footer__copyright {
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+/* ===== Desktop Styles (768px+) ===== */
+@media (min-width: 768px) {
+  .footer {
+    padding: var(--spacing-xl) 0 var(--spacing-lg);
+  }
+
+  .footer__container {
+    padding: 0 var(--spacing-xl);
+  }
+
+
+  .footer__title {
+    font-size: var(--font-size-lg);
+  }
+
+  .footer__text,
+  .footer__link {
+    font-size: var(--font-size-sm);
+  }
+
+  .footer__copyright {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .footer__container {
+    padding: 0 var(--spacing-2xl);
+  }
+}

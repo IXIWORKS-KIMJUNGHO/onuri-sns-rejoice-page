@@ -1,0 +1,337 @@
+/* ===== Weekly Page ===== */
+.weekly {
+  position: relative;
+  min-height: 100vh;
+  padding: var(--spacing-xl) var(--spacing-md);
+  padding-top: calc(var(--header-height-mobile) + var(--spacing-xl));
+  padding-bottom: var(--spacing-3xl);
+  overflow: hidden;
+}
+
+/* Background */
+.weekly__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  background: #000000;
+}
+
+.weekly__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+}
+
+/* Container */
+.weekly__container {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+/* Header */
+.weekly__header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.weekly__badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  letter-spacing: 0.05em;
+}
+
+.weekly__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.2;
+}
+
+.weekly__subtitle {
+  font-size: var(--font-size-base);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+/* Notice Box */
+.weekly__notice {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(12px);
+}
+
+.weekly__notice-icon {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.weekly__notice-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-white);
+  margin: 0;
+}
+
+/* Section */
+.weekly__section {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  backdrop-filter: blur(12px);
+  margin-bottom: var(--spacing-xl);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(0);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.weekly__section:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.weekly__section:last-child {
+  margin-bottom: 0;
+}
+
+.weekly__attendance-wrapper {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+}
+
+.weekly__section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.weekly__section-number {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--color-accent);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+}
+
+.weekly__section-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-white);
+  margin: 0;
+}
+
+.weekly__section-description {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+  margin-bottom: var(--spacing-lg);
+}
+
+.weekly__section-description strong {
+  color: var(--color-white);
+}
+
+/* Attendance Link */
+.weekly__attendance {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+  color: var(--color-white);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  text-decoration: none;
+  animation: pulse-glow 2s ease-in-out infinite;
+  cursor: pointer;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.weekly__attendance:hover {
+  transform: translateY(-2px);
+  animation: none;
+  color: var(--color-white);
+  box-shadow:
+    0 8px 24px rgba(255, 255, 255, 0.2),
+    0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(255, 255, 255, 0.5),
+      0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  70% {
+    box-shadow:
+      0 0 0 8px rgba(255, 255, 255, 0),
+      0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(255, 255, 255, 0),
+      0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* iCare Grid */
+.weekly__icare-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.weekly__icare-card {
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+}
+
+.weekly__icare-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.weekly__icare-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+}
+
+.weekly__icare-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.weekly__icare-description {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.5;
+}
+
+.weekly__icare-details {
+  margin: 0;
+  padding-left: var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.weekly__icare-details li {
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.4;
+}
+
+.weekly__icare-details li:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== Desktop Styles (768px+) ===== */
+@media (min-width: 768px) {
+  .weekly {
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    padding-top: calc(var(--header-height) + var(--spacing-3xl));
+  }
+
+  .weekly__badge {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .weekly__title {
+    font-size: 3rem;
+  }
+
+  .weekly__subtitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .weekly__section {
+    padding: var(--spacing-2xl);
+  }
+
+  .weekly__section-number {
+    width: 44px;
+    height: 44px;
+    font-size: var(--font-size-xl);
+  }
+
+  .weekly__section-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .weekly__section-description {
+    font-size: var(--font-size-base);
+  }
+
+  .weekly__attendance {
+    padding: var(--spacing-xl);
+  }
+
+  .weekly__icare-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  .weekly__icare-card {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* ===== Large Desktop (1200px+) ===== */
+@media (min-width: 1200px) {
+  .weekly__container {
+    max-width: 900px;
+  }
+
+  .weekly__title {
+    font-size: 3.5rem;
+  }
+}

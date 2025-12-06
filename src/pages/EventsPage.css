@@ -1,0 +1,565 @@
+/* ===== Events Page ===== */
+.events {
+  position: relative;
+  min-height: 100vh;
+  padding: var(--spacing-xl) var(--spacing-md);
+  padding-top: calc(var(--header-height-mobile) + var(--spacing-xl));
+  padding-bottom: var(--spacing-3xl);
+  overflow: hidden;
+}
+
+/* Background */
+.events__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  background: #000000;
+}
+
+.events__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+}
+
+/* Container */
+.events__container {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+/* Header */
+.events__header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.events__badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  letter-spacing: 0.05em;
+}
+
+.events__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.2;
+}
+
+.events__subtitle {
+  font-size: var(--font-size-base);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* Calendar Section */
+.events__calendar-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.events__calendar-wrapper {
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(12px);
+  margin-bottom: var(--spacing-md);
+}
+
+/* React Calendar 커스텀 스타일 */
+.events__calendar-wrapper .react-calendar {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+}
+
+.events__calendar-wrapper .react-calendar__navigation {
+  margin-bottom: var(--spacing-sm);
+}
+
+.events__calendar-wrapper .react-calendar__navigation button {
+  color: var(--color-white);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  background: transparent;
+  border-radius: var(--radius-md);
+  min-width: 44px;
+  padding: var(--spacing-sm);
+}
+
+.events__calendar-wrapper .react-calendar__navigation button:hover,
+.events__calendar-wrapper .react-calendar__navigation button:focus {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.events__calendar-wrapper .react-calendar__navigation button:disabled {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.events__calendar-wrapper .react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.events__calendar-wrapper .react-calendar__month-view__weekdays__weekday {
+  padding: var(--spacing-sm);
+}
+
+.events__calendar-wrapper .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+.events__calendar-wrapper .react-calendar__tile {
+  color: var(--color-white);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-sm);
+  background: transparent;
+  border-radius: var(--radius-md);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.events__calendar-wrapper .react-calendar__tile:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.events__calendar-wrapper .react-calendar__tile--now {
+  background: rgba(176, 4, 4, 0.3);
+}
+
+.events__calendar-wrapper .react-calendar__tile--now:hover {
+  background: rgba(176, 4, 4, 0.4);
+}
+
+.events__calendar-wrapper .react-calendar__tile--active {
+  background: var(--color-primary) !important;
+  color: var(--color-white);
+}
+
+.events__calendar-wrapper .react-calendar__tile--active:hover {
+  background: var(--color-primary-dark) !important;
+}
+
+.events__calendar-wrapper .react-calendar__month-view__days__day--neighboringMonth {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* 이벤트가 있는 날짜 표시 */
+.events__calendar-wrapper .events__calendar-has-event {
+  position: relative;
+}
+
+.events__calendar-wrapper .events__calendar-has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  border-radius: 50%;
+}
+
+/* 이벤트 색상별 스타일 */
+.events__calendar-wrapper .events__calendar-has-event--gold::after {
+  background: #d4af37;
+}
+
+.events__calendar-wrapper .events__calendar-has-event--green::after {
+  background: #2ecc71;
+}
+
+.events__calendar-wrapper .events__calendar-has-event--red::after {
+  background: #e74c3c;
+}
+
+.events__calendar-wrapper .events__calendar-has-event--blue::after {
+  background: #3498db;
+}
+
+.events__calendar-wrapper .events__calendar-has-event--purple::after {
+  background: #9b59b6;
+}
+
+/* 선택된 날짜의 이벤트 표시 */
+.events__calendar-events {
+  padding: var(--spacing-md);
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+}
+
+.events__calendar-events-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-white);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.events__calendar-events-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.events__calendar-event-item {
+  padding: var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.events__calendar-event-item::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* 이벤트 목록 색상별 스타일 */
+.events__calendar-event-item--gold::before {
+  background: #d4af37;
+}
+
+.events__calendar-event-item--green::before {
+  background: #2ecc71;
+}
+
+.events__calendar-event-item--red::before {
+  background: #e74c3c;
+}
+
+.events__calendar-event-item--blue::before {
+  background: #3498db;
+}
+
+.events__calendar-event-item--purple::before {
+  background: #9b59b6;
+}
+
+/* Section */
+.events__section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.events__section:last-child {
+  margin-bottom: 0;
+}
+
+/* Divider */
+.events__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.events__divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+}
+
+.events__divider-text {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.events__section-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.events__section-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-white);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.events__section-description {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.events__rejoice-description {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+/* Highlighted Card Animation */
+.events__card--highlighted {
+  animation: highlightPulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6) !important;
+  border-color: var(--color-accent) !important;
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.8);
+  }
+}
+
+/* Community Event Card */
+.events__community-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+}
+
+.events__community-card {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.events__community-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.events__community-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.events__community-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.events__community-content {
+  padding: var(--spacing-lg);
+}
+
+.events__community-month {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-white);
+  background: rgba(176, 4, 4, 0.4);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.events__community-name {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-white);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.events__community-description {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Rejoice Event Cards */
+.events__rejoice-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+.events__rejoice-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.events__rejoice-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.events__rejoice-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.events__rejoice-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.events__rejoice-image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(176, 4, 4, 0.3) 0%, rgba(100, 0, 0, 0.3) 100%);
+}
+
+.events__rejoice-image--placeholder span {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.events__rejoice-content {
+  padding: var(--spacing-md);
+}
+
+.events__rejoice-category {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-accent);
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--spacing-sm);
+}
+
+.events__rejoice-name {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-white);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.events__rejoice-description {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ===== Desktop Styles (768px+) ===== */
+@media (min-width: 768px) {
+  .events {
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    padding-top: calc(var(--header-height) + var(--spacing-3xl));
+  }
+
+  .events__badge {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .events__title {
+    font-size: 3rem;
+  }
+
+  .events__subtitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .events__section-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .events__section-description {
+    font-size: var(--font-size-base);
+  }
+
+  .events__community-content {
+    padding: var(--spacing-xl);
+  }
+
+  .events__community-name {
+    font-size: var(--font-size-2xl);
+  }
+
+  .events__community-description {
+    font-size: var(--font-size-base);
+  }
+
+  .events__rejoice-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  .events__rejoice-content {
+    padding: var(--spacing-lg);
+  }
+
+  .events__rejoice-name {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* ===== Large Desktop (1200px+) ===== */
+@media (min-width: 1200px) {
+  .events__title {
+    font-size: 3.5rem;
+  }
+
+  .events__rejoice-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
