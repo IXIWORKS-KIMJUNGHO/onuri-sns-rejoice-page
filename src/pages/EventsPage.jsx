@@ -140,6 +140,7 @@ function EventsPage() {
               onChange={handleDateChange}
               value={selectedDate}
               locale="ko-KR"
+              calendarType="gregory"
               tileClassName={({ date }) => {
                 const color = getEventColor(date)
                 return color ? `events__calendar-has-event events__calendar-has-event--${color}` : null
