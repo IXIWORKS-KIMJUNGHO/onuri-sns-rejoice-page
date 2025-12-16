@@ -130,7 +130,7 @@ function GuidePage() {
           </div>
         </div>
 
-        {/* 순모임 십계명 */}
+        {/* 순모임 서약 - 일시적으로 숨김 처리
         <div className="guide__section">
           <div className="guide__section-header">
             <svg className="guide__section-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -157,6 +157,7 @@ function GuidePage() {
             본 서약을 준수하지 못한 경우에는 공동체와 교역자님의 가이드에 순종하겠습니다.
           </p>
         </div>
+        */}
       </div>
     </section>
   )
