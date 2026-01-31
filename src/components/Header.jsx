@@ -10,6 +10,7 @@ const navItems = [
   { path: '/weekly', label: 'Weekly TO DO' },
   { path: '/places', label: '순모임 장소' },
   { path: '/events', label: 'REJOICE Events' },
+  { path: '/recreation', label: '레크레이션' },
 ]
 
 function Header() {
