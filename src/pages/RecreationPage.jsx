@@ -1,15 +1,20 @@
+import { Link } from 'react-router-dom'
 import './RecreationPage.css'
 
 const recreations = [
   {
     id: 1,
-    name: '레크레이션 1',
-    participants: '미정',
-    duration: '미정',
-    description: '내용이 곧 업데이트됩니다.',
+    name: '순장님 맞히기',
+    participants: '제한 없음',
+    duration: '15~30분',
+    description: '점점 커지는 원 안에서 순장님 얼굴을 맞히는 게임입니다. 사진을 업로드하고 확대 시작 위치를 설정하면, 12단계로 점점 드러나는 사진 속 인물을 맞춰보세요!',
     rules: [
-      '준비 중입니다',
+      '진행자가 순장님 사진을 업로드하고 확대 시작 위치를 설정합니다',
+      '작은 원에서 시작해 12단계로 점점 확대됩니다',
+      '참가자들이 누구인지 맞추면 성공!',
+      '화살표(→) 또는 스페이스바로 다음 단계를 진행합니다',
     ],
+    link: '/recreation/guess-leader',
   },
   {
     id: 2,
@@ -20,6 +25,7 @@ const recreations = [
     rules: [
       '준비 중입니다',
     ],
+    link: null,
   },
 ]
 
@@ -76,6 +82,14 @@ function RecreationPage() {
                   ))}
                 </ol>
               </div>
+
+              {item.link && (
+                <div className="recreation__card-action">
+                  <Link to={item.link} className="recreation__card-btn">
+                    게임 시작하기
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </div>
