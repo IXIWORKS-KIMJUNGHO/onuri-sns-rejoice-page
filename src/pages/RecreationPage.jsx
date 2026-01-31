@@ -1,0 +1,101 @@
+import './RecreationPage.css'
+
+const recreations = [
+  {
+    id: 1,
+    name: '레크레이션 1',
+    participants: '미정',
+    duration: '미정',
+    description: '내용이 곧 업데이트됩니다.',
+    rules: [
+      '준비 중입니다',
+    ],
+  },
+  {
+    id: 2,
+    name: '레크레이션 2',
+    participants: '미정',
+    duration: '미정',
+    description: '내용이 곧 업데이트됩니다.',
+    rules: [
+      '준비 중입니다',
+    ],
+  },
+]
+
+function RecreationPage() {
+  return (
+    <section className="recreation">
+      <div className="recreation__background">
+        <div className="recreation__overlay"></div>
+      </div>
+
+      <div className="recreation__container">
+        {/* Header */}
+        <div className="recreation__header">
+          <div className="recreation__badge">Recreation</div>
+          <h1 className="recreation__title">레크레이션</h1>
+          <p className="recreation__subtitle">
+            순모임과 공동체 활동에서 활용할 수 있는 레크레이션을 소개합니다
+          </p>
+        </div>
+
+        {/* Recreation Cards */}
+        <div className="recreation__grid">
+          {recreations.map((item) => (
+            <div key={item.id} className="recreation__card">
+              <div className="recreation__card-header">
+                <h3 className="recreation__card-name">{item.name}</h3>
+                <p className="recreation__card-description">{item.description}</p>
+              </div>
+
+              <div className="recreation__card-meta">
+                <div className="recreation__card-meta-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  <span>{item.participants}</span>
+                </div>
+                <div className="recreation__card-meta-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>{item.duration}</span>
+                </div>
+              </div>
+
+              <div className="recreation__card-rules">
+                <h4 className="recreation__card-rules-title">진행 방법</h4>
+                <ol className="recreation__card-rules-list">
+                  {item.rules.map((rule, index) => (
+                    <li key={index} className="recreation__card-rules-item">{rule}</li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tip */}
+        <div className="recreation__tip">
+          <svg className="recreation__tip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+          <div className="recreation__tip-content">
+            <p className="recreation__tip-title">레크레이션 활용 팁</p>
+            <p className="recreation__tip-text">
+              순모임 시작 전 아이스브레이커로 분위기를 풀어주면 더 깊은 나눔이 가능합니다.
+              활동 후에는 자연스럽게 말씀 나눔으로 연결해 보세요!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default RecreationPage

@@ -10,6 +10,7 @@ const GuidePage = lazy(() => import('./pages/GuidePage'))
 const WeeklyPage = lazy(() => import('./pages/WeeklyPage'))
 const PlacesPage = lazy(() => import('./pages/PlacesPage'))
 const EventsPage = lazy(() => import('./pages/EventsPage'))
+const RecreationPage = lazy(() => import('./pages/RecreationPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 // Loading fallback component
@@ -33,6 +34,7 @@ function App() {
             <Route path="weekly" element={<WeeklyPage />} />
             <Route path="places" element={<PlacesPage />} />
             <Route path="events" element={<EventsPage />} />
+            <Route path="recreation" element={<RecreationPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

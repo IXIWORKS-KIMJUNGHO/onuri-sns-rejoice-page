@@ -42,6 +42,9 @@ function Hero() {
           <Link to="/events" className="hero__cta-link hero__cta-link--outline">
             REJOICE Events
           </Link>
+          <Link to="/recreation" className="hero__cta-link hero__cta-link--outline">
+            레크레이션
+          </Link>
         </div>
       </div>
 
