@@ -229,6 +229,24 @@
   color: var(--color-primary-light);
 }
 
+/* Card Action */
+.recreation__card-action {
+  text-align: center;
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+.recreation__card-btn {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.recreation__card-btn:hover {
+  color: var(--color-primary-light);
+}
+
 /* Tip Box */
 .recreation__tip {
   display: flex;
