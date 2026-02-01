@@ -280,6 +280,17 @@
   transform: translateY(-2px);
 }
 
+.glg__btn--reveal {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.glg__btn--reveal:hover {
+  background: rgba(251, 191, 36, 0.25);
+  transform: translateY(-2px);
+}
+
 .glg__btn--small {
   padding: var(--spacing-sm) var(--spacing-lg);
   font-size: var(--font-size-base);

@@ -206,8 +206,8 @@ function GuessLeaderGame() {
       {screen === 'upload' && (
         <div className="glg__screen glg__upload">
           <Link to="/recreation" className="glg__back-link">← 레크레이션 목록</Link>
-          <h1 className="glg__title">REJOICE<br />순장님 맞히기</h1>
-          <p className="glg__subtitle">점점 커지는 원 안에서 우리 순장님을 찾아보세요!</p>
+          <h1 className="glg__title">REJOICE<br />누구일까요?</h1>
+          <p className="glg__subtitle">점점 커지는 원 안에서 사진 속 인물을 맞혀보세요!</p>
 
           <div className="glg__admin-badge">
             ⚙️ <strong>진행자 설정 화면</strong> - 참가자들이 보지 않도록 주의하세요!
@@ -221,7 +221,7 @@ function GuessLeaderGame() {
             onDrop={handleDrop}
           >
             <div className="glg__upload-icon">📸</div>
-            <p className="glg__upload-text">순장님 사진들을 드래그하거나 클릭해서 업로드</p>
+            <p className="glg__upload-text">사진들을 드래그하거나 클릭해서 업로드</p>
             <p className="glg__upload-hint">여러 장을 한번에 선택할 수 있어요!</p>
             <input
               ref={fileInputRef}
@@ -249,7 +249,7 @@ function GuessLeaderGame() {
                   </div>
                 ))}
               </div>
-              <p className="glg__image-count">총 {images.length}장의 순장님 사진</p>
+              <p className="glg__image-count">총 {images.length}장의 사진</p>
             </>
           )}
 
@@ -310,8 +310,8 @@ function GuessLeaderGame() {
       {/* Intro Screen */}
       {screen === 'intro' && (
         <div className="glg__screen glg__intro">
-          <h1 className="glg__intro-title">REJOICE<br />순장님 맞히기</h1>
-          <p className="glg__intro-subtitle">점점 커지는 원 안에서<br />우리 순장님을 찾아보세요!</p>
+          <h1 className="glg__intro-title">REJOICE<br />누구일까요?</h1>
+          <p className="glg__intro-subtitle">점점 커지는 원 안에서<br />사진 속 인물을 맞혀보세요!</p>
 
           <div className="glg__intro-info">
             <div className="glg__intro-count">{images.length} ROUND{images.length > 1 ? 'S' : ''}</div>
@@ -372,6 +372,9 @@ function GuessLeaderGame() {
             <div className="glg__controls">
               <button className="glg__btn glg__btn--secondary glg__btn--small" onClick={resetGame}>
                 다시 시작
+              </button>
+              <button className="glg__btn glg__btn--reveal glg__btn--small" onClick={() => setShowComplete(true)}>
+                정답 공개
               </button>
               <button className="glg__btn glg__btn--primary glg__btn--small" onClick={nextStep}>
                 다음 단계
