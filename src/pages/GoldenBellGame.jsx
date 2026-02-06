@@ -372,6 +372,9 @@ function GoldenBellGame() {
     setPhase('answering')
   }
 
+  // Speed bonus points for top 5 correct answers
+  const speedBonusPoints = [5, 4, 3, 2, 1]
+
   // --- Close Answers & Reveal (Host) ---
   async function revealAnswer() {
     // Play reveal sound
@@ -387,7 +390,8 @@ function GoldenBellGame() {
       cqi = cqData.val()?.correctChoiceIndex
     }
 
-    // Auto-score
+    // Find correct answers and sort by submission time
+    const correctAnswers = []
     for (const a of answers) {
       if (autoScoredRef.current.has(a.participantId)) continue
 
@@ -399,13 +403,27 @@ function GoldenBellGame() {
       }
 
       if (isCorrect) {
-        const current = scores[a.participantId]?.total || 0
-        await set(ref(database, `rooms/${roomCode}/scores/${a.participantId}`), {
-          nickname: a.nickname,
-          total: current + pointValue,
-        })
-        autoScoredRef.current.add(a.participantId)
+        correctAnswers.push(a)
       }
+    }
+
+    // Sort by submission time (earliest first)
+    correctAnswers.sort((a, b) => a.submittedAt - b.submittedAt)
+
+    // Award points with speed bonus for top 5
+    for (let i = 0; i < correctAnswers.length; i++) {
+      const a = correctAnswers[i]
+      const current = scores[a.participantId]?.total || 0
+      const speedBonus = i < 5 ? speedBonusPoints[i] : 0
+      const totalPoints = pointValue + speedBonus
+
+      await set(ref(database, `rooms/${roomCode}/scores/${a.participantId}`), {
+        nickname: a.nickname,
+        total: current + totalPoints,
+        lastSpeedBonus: speedBonus > 0 ? speedBonus : null,
+        lastRank: i < 5 ? i + 1 : null,
+      })
+      autoScoredRef.current.add(a.participantId)
     }
 
     // Update phase in Firebase so participants see the correct answer
@@ -816,14 +834,17 @@ function GoldenBellGame() {
                 ) : (
                   <div className="gb__answers-grid">
                     {answers.map((a) => (
-                      <div key={a.id} className="gb__answer-card">
+                      <div key={a.id} className="gb__answer-card gb__answer-card--submitted">
                         <div className="gb__answer-card-top">
                           <div className="gb__answer-nickname">{a.nickname}</div>
                           <div className="gb__answer-score-badge">
                             {scores[a.participantId]?.total || 0}점
                           </div>
                         </div>
-                        <div className="gb__answer-text">{a.text}</div>
+                        <div className="gb__answer-text gb__answer-text--hidden">
+                          <span className="gb__answer-hidden-icon">✅</span>
+                          <span>제출 완료</span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -854,10 +875,14 @@ function GoldenBellGame() {
 
               <div className="gb__answers-section">
                 <h3 className="gb__answers-title">채점 결과</h3>
+                <p className="gb__answers-hint">빠른 정답자 1~5등에게 보너스 점수가 지급됩니다 (+5, +4, +3, +2, +1)</p>
                 {answers.length > 0 && (
                   <div className="gb__answers-grid">
                     {answers.map((a) => {
                       const correct = isAnswerCorrect(a)
+                      const speedRank = scores[a.participantId]?.lastRank
+                      const speedBonus = scores[a.participantId]?.lastSpeedBonus
+                      const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
                       return (
                         <div key={a.id} className={`gb__answer-card ${correct === true ? 'gb__answer-card--correct' : correct === false ? 'gb__answer-card--wrong' : ''}`}>
                           <div className="gb__answer-card-top">
@@ -865,6 +890,9 @@ function GoldenBellGame() {
                               {correct === true && <span className="gb__answer-mark">✅ </span>}
                               {correct === false && <span className="gb__answer-mark">❌ </span>}
                               {a.nickname}
+                              {speedRank && (
+                                <span className="gb__speed-rank">{rankEmojis[speedRank - 1]} +{speedBonus}</span>
+                              )}
                             </div>
                             <div className="gb__answer-score-badge">
                               {scores[a.participantId]?.total || 0}점

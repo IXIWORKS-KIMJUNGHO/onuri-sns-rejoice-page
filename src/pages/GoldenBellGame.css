@@ -787,6 +787,12 @@
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--color-white);
+  margin-bottom: var(--spacing-xs);
+}
+
+.gb__answers-hint {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.5);
   margin-bottom: var(--spacing-md);
 }
 
@@ -824,6 +830,23 @@
   word-break: break-word;
 }
 
+.gb__answer-text--hidden {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.gb__answer-hidden-icon {
+  font-size: 1.2rem;
+}
+
+.gb__answer-card--submitted {
+  border-color: rgba(74, 222, 128, 0.3);
+  background: rgba(74, 222, 128, 0.05);
+}
+
 /* Answer Card States */
 .gb__answer-card--correct {
   border-color: rgba(74, 222, 128, 0.5);
@@ -837,6 +860,22 @@
 
 .gb__answer-mark {
   font-size: var(--font-size-sm);
+}
+
+.gb__speed-rank {
+  margin-left: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+  padding: 2px var(--spacing-xs);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.gb__speed-rank--large {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
 }
 
 /* ===== SCORE INPUT ===== */
@@ -1387,6 +1426,20 @@
 .gb__display-answer-card--wrong {
   background: rgba(239, 68, 68, 0.08);
   border-color: rgba(239, 68, 68, 0.4);
+}
+
+.gb__display-answer-card--submitted {
+  background: rgba(74, 222, 128, 0.05);
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+.gb__display-answer-hidden {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: #4ade80;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
 }
 
 .gb__display-answer-nickname {
