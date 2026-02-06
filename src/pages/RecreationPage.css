@@ -125,6 +125,8 @@
 
 /* Card */
 .recreation__card {
+  display: flex;
+  flex-direction: column;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-xl);
@@ -137,12 +139,31 @@
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
-.recreation__card:hover {
-  transform: translateY(-2px);
+.recreation__card--clickable {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.recreation__card--clickable:hover {
+  transform: translateY(-4px);
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.25),
     0 4px 12px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-color: var(--color-primary);
+}
+
+.recreation__card--clickable:hover .recreation__card-btn {
+  color: var(--color-primary-light);
+}
+
+.recreation__card--disabled {
+  opacity: 0.6;
+}
+
+.recreation__card--disabled .recreation__card-btn {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 /* Card Header */
@@ -233,6 +254,7 @@
 .recreation__card-action {
   text-align: center;
   padding: 0 var(--spacing-lg) var(--spacing-lg);
+  margin-top: auto;
 }
 
 .recreation__card-btn {

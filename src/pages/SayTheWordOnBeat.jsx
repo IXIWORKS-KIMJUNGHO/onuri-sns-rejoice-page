@@ -455,8 +455,8 @@ function SayTheWordOnBeat() {
   // 설정 화면
   const renderSetupScreen = () => (
     <div className="stw__setup">
-      <h1 className="stw__title">Say the Word on the Beat</h1>
-      <p className="stw__subtitle">비트에 맞춰 사진 속 단어를 말해보세요!</p>
+      <h1 className="stw__title">2교시 리듬 탐구생활</h1>
+      <p className="stw__subtitle">박자에 맞춰 말해봐!</p>
 
       {/* 사진 업로드 영역 */}
       <div className="stw__upload-section">

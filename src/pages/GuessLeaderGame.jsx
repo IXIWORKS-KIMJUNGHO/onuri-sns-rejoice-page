@@ -206,7 +206,7 @@ function GuessLeaderGame() {
       {screen === 'upload' && (
         <div className="glg__screen glg__upload">
           <Link to="/recreation" className="glg__back-link">← 레크레이션 목록</Link>
-          <h1 className="glg__title">REJOICE<br />누구일까요?</h1>
+          <h1 className="glg__title">1교시 돋보기 탐구생활</h1>
           <p className="glg__subtitle">점점 커지는 원 안에서 사진 속 인물을 맞혀보세요!</p>
 
           <div className="glg__admin-badge">
@@ -310,7 +310,7 @@ function GuessLeaderGame() {
       {/* Intro Screen */}
       {screen === 'intro' && (
         <div className="glg__screen glg__intro">
-          <h1 className="glg__intro-title">REJOICE<br />누구일까요?</h1>
+          <h1 className="glg__intro-title">1교시 돋보기 탐구생활</h1>
           <p className="glg__intro-subtitle">점점 커지는 원 안에서<br />사진 속 인물을 맞혀보세요!</p>
 
           <div className="glg__intro-info">

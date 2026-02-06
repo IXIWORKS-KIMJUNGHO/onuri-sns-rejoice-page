@@ -56,6 +56,56 @@ function GoldenBellGame() {
   const disconnectRefs = useRef([])
   const prevQuestionNumberRef = useRef(0)
 
+  // Sound refs
+  const openingSoundRef = useRef(null)
+  const clockSoundRef = useRef(null)
+  const answerSubmitSoundRef = useRef(null)
+  const answerRevealSoundRef = useRef(null)
+  const endingSoundRef = useRef(null)
+
+  // Initialize sounds
+  useEffect(() => {
+    openingSoundRef.current = new Audio('/opening.mp3')
+    openingSoundRef.current.loop = true
+    clockSoundRef.current = new Audio('/clock.mp3')
+    clockSoundRef.current.loop = true
+    answerSubmitSoundRef.current = new Audio('/answer summit.mp3')
+    answerRevealSoundRef.current = new Audio('/answer.mp3')
+    endingSoundRef.current = new Audio('/ending.mp3')
+
+    return () => {
+      // Cleanup sounds on unmount
+      [openingSoundRef, clockSoundRef, answerSubmitSoundRef, answerRevealSoundRef, endingSoundRef].forEach(ref => {
+        if (ref.current) {
+          ref.current.pause()
+          ref.current.currentTime = 0
+        }
+      })
+    }
+  }, [])
+
+  // Play opening sound when host is waiting
+  useEffect(() => {
+    if (screen === 'host-waiting' && openingSoundRef.current) {
+      openingSoundRef.current.currentTime = 0
+      openingSoundRef.current.play().catch(() => {})
+    } else if (openingSoundRef.current) {
+      openingSoundRef.current.pause()
+      openingSoundRef.current.currentTime = 0
+    }
+  }, [screen])
+
+  // Play clock sound for participant during answering phase
+  useEffect(() => {
+    if (role === 'participant' && phase === 'answering' && !hasSubmitted && clockSoundRef.current) {
+      clockSoundRef.current.currentTime = 0
+      clockSoundRef.current.play().catch(() => {})
+    } else if (clockSoundRef.current) {
+      clockSoundRef.current.pause()
+      clockSoundRef.current.currentTime = 0
+    }
+  }, [role, phase, hasSubmitted])
+
   // --- Cleanup on unmount ---
   useEffect(() => {
     return () => {
@@ -324,6 +374,12 @@ function GoldenBellGame() {
 
   // --- Close Answers & Reveal (Host) ---
   async function revealAnswer() {
+    // Play reveal sound
+    if (answerRevealSoundRef.current) {
+      answerRevealSoundRef.current.currentTime = 0
+      answerRevealSoundRef.current.play().catch(() => {})
+    }
+
     // Fetch current question data once for objective scoring
     let cqi = null
     if (currentQuestionType === 'objective') {
@@ -393,6 +449,11 @@ function GoldenBellGame() {
         submittedAt: Date.now(),
       })
     }
+    // Play submit sound
+    if (answerSubmitSoundRef.current) {
+      answerSubmitSoundRef.current.currentTime = 0
+      answerSubmitSoundRef.current.play().catch(() => {})
+    }
     setHasSubmitted(true)
   }
 
@@ -411,12 +472,22 @@ function GoldenBellGame() {
 
   // --- End Game (Host) ---
   async function endGame() {
+    // Play ending sound
+    if (endingSoundRef.current) {
+      endingSoundRef.current.currentTime = 0
+      endingSoundRef.current.play().catch(() => {})
+    }
     await set(ref(database, `rooms/${roomCode}/status`), 'ended')
     setScreen('ended')
   }
 
   // --- Reset ---
   function resetGame() {
+    // Play ending sound
+    if (endingSoundRef.current) {
+      endingSoundRef.current.currentTime = 0
+      endingSoundRef.current.play().catch(() => {})
+    }
     if (role === 'host' && roomCode) {
       remove(ref(database, `rooms/${roomCode}`))
     }
@@ -490,8 +561,8 @@ function GoldenBellGame() {
       {screen === 'lobby' && (
         <div className="gb__screen gb__lobby">
           <Link to="/recreation" className="gb__back-link">← 레크레이션 목록</Link>
-          <h1 className="gb__title">도전!<br />골든벨</h1>
-          <p className="gb__subtitle">실시간 퀴즈 게임으로 순모임을 더 즐겁게!</p>
+          <h1 className="gb__title">3교시 친구 탐구생활</h1>
+          <p className="gb__subtitle">이건 누구 이야기? 실시간 퀴즈 게임!</p>
 
           {error && <div className="gb__error">{error}</div>}
 
@@ -559,6 +630,19 @@ function GoldenBellGame() {
             {roomCode}
           </div>
           <p className="gb__room-code-hint">터치하면 복사됩니다</p>
+
+          <div className="gb__projector-link-section">
+            <h3 className="gb__projector-link-title">📺 프로젝터 화면</h3>
+            <p className="gb__projector-link-desc">프로젝터에 아래 주소를 입력하세요</p>
+            <div
+              className="gb__projector-link"
+              onClick={() => navigator.clipboard?.writeText(`${window.location.origin}${window.location.pathname}#/recreation/golden-bell/display?room=${roomCode}`)}
+              title="클릭하여 복사"
+            >
+              {`${window.location.origin}/...display?room=${roomCode}`}
+            </div>
+            <p className="gb__room-code-hint">터치하면 복사됩니다</p>
+          </div>
 
           <div className="gb__participants-section">
             <h3 className="gb__participants-title">
@@ -843,7 +927,9 @@ function GoldenBellGame() {
               <div className="gb__scoreboard-list">
                 {scoreboard.map((s, i) => (
                   <div key={s.id} className={`gb__scoreboard-item ${i < 3 ? `gb__scoreboard-item--top${i + 1}` : ''}`}>
-                    <span className="gb__scoreboard-rank">{i + 1}</span>
+                    <span className="gb__scoreboard-rank">
+                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+                    </span>
                     <span className="gb__scoreboard-name">{s.nickname}</span>
                     <span className="gb__scoreboard-total">{s.total}점</span>
                   </div>
