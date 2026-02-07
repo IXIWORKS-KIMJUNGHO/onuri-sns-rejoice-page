@@ -88,7 +88,7 @@ const recreations = [
   },
   {
     id: 7,
-    name: '[방과후학교] 창의적 시각 사고반: 캐치마인드',
+    name: '[방과후학교] 창의적 시각 사고반',
     participants: '팀 대항',
     duration: '15~30분',
     description: '제한시간 동안 한 명이 그림을 그리고 나머지 팀원이 맞추는 게임입니다.',
