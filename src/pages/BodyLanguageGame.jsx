@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import './BodyLanguageGame.css'
 
 const prompts = {
+  시범: [
+    '노래하는 너구리가 뛰면서 춤을 춘다',
+    '파마한 쥐가 누워서 발레한다',
+  ],
   운동: [
     '다리가 짧은 기린이 숨차게 마라톤을 뛴다',
     '날개 다친 참새가 미끄러지며 스케이트를 탄다',
@@ -105,6 +109,7 @@ function BodyLanguageGame() {
                 onClick={() => startCategory(category)}
               >
                 <span className="blg__category-icon">
+                  {category === '시범' && '🎬'}
                   {category === '운동' && '🏃'}
                   {category === '음식' && '🍽️'}
                   {category === '예술' && '🎨'}
@@ -135,6 +140,7 @@ function BodyLanguageGame() {
           </button>
 
           <div className="blg__category-badge">
+            {selectedCategory === '시범' && '🎬'}
             {selectedCategory === '운동' && '🏃'}
             {selectedCategory === '음식' && '🍽️'}
             {selectedCategory === '예술' && '🎨'}

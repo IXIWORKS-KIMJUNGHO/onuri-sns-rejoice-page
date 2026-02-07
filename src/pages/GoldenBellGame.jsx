@@ -213,10 +213,12 @@ function GoldenBellGame() {
         setPhase('answering')
       }
 
-      // Phase changed to reviewing
+      // Phase changes
       if (data.phase === 'reviewing' && data.correctAnswer != null) {
         setCorrectAnswer(data.correctAnswer)
         setPhase('reviewing')
+      } else if (data.phase === 'revealing') {
+        setPhase('revealing')
       } else if (data.phase === 'answering') {
         setPhase('answering')
       }
@@ -372,11 +374,18 @@ function GoldenBellGame() {
     setPhase('answering')
   }
 
-  // Speed bonus points for top 5 correct answers
-  const speedBonusPoints = [5, 4, 3, 2, 1]
+  // Points by rank: 1st=10, 2nd=7, 3rd=4, others=1
+  const rankPoints = [10, 7, 4]
 
-  // --- Close Answers & Reveal (Host) ---
-  async function revealAnswer() {
+  // --- Step 1: Close Answers & Show participant answers (Host) ---
+  async function revealAnswers() {
+    // Update phase in Firebase to 'revealing' (show answers, not correct answer yet)
+    await set(ref(database, `rooms/${roomCode}/currentQuestion/phase`), 'revealing')
+    setPhase('revealing')
+  }
+
+  // --- Step 2: Reveal Correct Answer & Score (Host) ---
+  async function revealCorrectAnswer() {
     // Play reveal sound
     if (answerRevealSoundRef.current) {
       answerRevealSoundRef.current.currentTime = 0
@@ -410,18 +419,17 @@ function GoldenBellGame() {
     // Sort by submission time (earliest first)
     correctAnswers.sort((a, b) => a.submittedAt - b.submittedAt)
 
-    // Award points with speed bonus for top 5
+    // Award points by rank: 1st=10, 2nd=7, 3rd=4, others=1
     for (let i = 0; i < correctAnswers.length; i++) {
       const a = correctAnswers[i]
       const current = scores[a.participantId]?.total || 0
-      const speedBonus = i < 5 ? speedBonusPoints[i] : 0
-      const totalPoints = pointValue + speedBonus
+      const points = i < 3 ? rankPoints[i] : 1
 
       await set(ref(database, `rooms/${roomCode}/scores/${a.participantId}`), {
         nickname: a.nickname,
-        total: current + totalPoints,
-        lastSpeedBonus: speedBonus > 0 ? speedBonus : null,
-        lastRank: i < 5 ? i + 1 : null,
+        total: current + points,
+        lastPoints: points,
+        lastRank: i < 3 ? i + 1 : null,
       })
       autoScoredRef.current.add(a.participantId)
     }
@@ -751,14 +759,6 @@ function GoldenBellGame() {
                     value={correctAnswerInput}
                     onChange={(e) => setCorrectAnswerInput(e.target.value)}
                   />
-                  <input
-                    className="gb__input gb__input--point"
-                    type="number"
-                    inputMode="numeric"
-                    placeholder="배점"
-                    value={pointValueInput}
-                    onChange={(e) => setPointValueInput(e.target.value)}
-                  />
                 </div>
               ) : (
                 <div className="gb__choices-input">
@@ -786,16 +786,6 @@ function GoldenBellGame() {
                       </button>
                     </div>
                   ))}
-                  <div className="gb__question-options">
-                    <input
-                      className="gb__input gb__input--point"
-                      type="number"
-                      inputMode="numeric"
-                      placeholder="배점"
-                      value={pointValueInput}
-                      onChange={(e) => setPointValueInput(e.target.value)}
-                    />
-                  </div>
                 </div>
               )}
 
@@ -818,7 +808,7 @@ function GoldenBellGame() {
               <div className="gb__current-question-box">
                 <p className="gb__current-question-text">{questionText}</p>
                 {correctAnswer && (
-                  <p className="gb__current-question-answer-hidden">정답 설정됨 ({pointValue}점)</p>
+                  <p className="gb__current-question-answer-hidden">정답 설정됨</p>
                 )}
               </div>
 
@@ -852,8 +842,45 @@ function GoldenBellGame() {
               </div>
 
               <div className="gb__phase-action">
-                <button className="gb__btn gb__btn--primary" onClick={revealAnswer}>
-                  답변 마감 & 정답 공개
+                <button className="gb__btn gb__btn--primary" onClick={revealAnswers}>
+                  답변 마감 & 답변 공개
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* PHASE: REVEALING (답변만 공개, 정답은 아직) */}
+          {phase === 'revealing' && questionNumber > 0 && (
+            <>
+              <div className="gb__current-question-box">
+                <p className="gb__current-question-text">{questionText}</p>
+                {correctAnswer && (
+                  <p className="gb__current-question-answer-hidden">정답 설정됨</p>
+                )}
+              </div>
+
+              <div className="gb__answers-section">
+                <h3 className="gb__answers-title">참가자 답변</h3>
+                {answers.length > 0 && (
+                  <div className="gb__answers-grid">
+                    {answers.map((a) => (
+                      <div key={a.id} className="gb__answer-card">
+                        <div className="gb__answer-card-top">
+                          <div className="gb__answer-nickname">{a.nickname}</div>
+                          <div className="gb__answer-score-badge">
+                            {scores[a.participantId]?.total || 0}점
+                          </div>
+                        </div>
+                        <div className="gb__answer-text">{a.text}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="gb__phase-action">
+                <button className="gb__btn gb__btn--primary" onClick={revealCorrectAnswer}>
+                  정답 공개 & 채점
                 </button>
               </div>
             </>
@@ -868,21 +895,20 @@ function GoldenBellGame() {
                   <div className="gb__correct-answer-reveal">
                     <span className="gb__correct-answer-label">정답</span>
                     <span className="gb__correct-answer-text">{correctAnswer}</span>
-                    <span className="gb__correct-answer-points">{pointValue}점</span>
                   </div>
                 )}
               </div>
 
               <div className="gb__answers-section">
                 <h3 className="gb__answers-title">채점 결과</h3>
-                <p className="gb__answers-hint">빠른 정답자 1~5등에게 보너스 점수가 지급됩니다 (+5, +4, +3, +2, +1)</p>
+                <p className="gb__answers-hint">1등 10점 / 2등 7점 / 3등 4점 / 정답 1점</p>
                 {answers.length > 0 && (
                   <div className="gb__answers-grid">
                     {answers.map((a) => {
                       const correct = isAnswerCorrect(a)
-                      const speedRank = scores[a.participantId]?.lastRank
-                      const speedBonus = scores[a.participantId]?.lastSpeedBonus
-                      const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
+                      const lastRank = scores[a.participantId]?.lastRank
+                      const lastPoints = scores[a.participantId]?.lastPoints
+                      const rankEmojis = ['🥇', '🥈', '🥉']
                       return (
                         <div key={a.id} className={`gb__answer-card ${correct === true ? 'gb__answer-card--correct' : correct === false ? 'gb__answer-card--wrong' : ''}`}>
                           <div className="gb__answer-card-top">
@@ -890,8 +916,11 @@ function GoldenBellGame() {
                               {correct === true && <span className="gb__answer-mark">✅ </span>}
                               {correct === false && <span className="gb__answer-mark">❌ </span>}
                               {a.nickname}
-                              {speedRank && (
-                                <span className="gb__speed-rank">{rankEmojis[speedRank - 1]} +{speedBonus}</span>
+                              {lastRank && (
+                                <span className="gb__speed-rank">{rankEmojis[lastRank - 1]} +{lastPoints}</span>
+                              )}
+                              {correct === true && !lastRank && lastPoints && (
+                                <span className="gb__speed-rank">+{lastPoints}</span>
                               )}
                             </div>
                             <div className="gb__answer-score-badge">
@@ -1077,6 +1106,15 @@ function GoldenBellGame() {
                     </div>
                   )}
                 </>
+              )}
+
+              {/* Revealing phase: show submitted answer, waiting for correct answer */}
+              {phase === 'revealing' && hasSubmitted && (
+                <div className="gb__submitted">
+                  <div className="gb__submitted-icon">⏳</div>
+                  <p className="gb__submitted-text">정답 공개 대기 중...</p>
+                  <div className="gb__submitted-answer">내 답: {answerText}</div>
+                </div>
               )}
 
               {/* Reviewing phase: show result */}

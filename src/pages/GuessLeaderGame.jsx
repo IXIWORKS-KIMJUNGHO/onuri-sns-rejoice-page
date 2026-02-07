@@ -1,11 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { database } from '../lib/firebase'
+import { ref, set, get, onValue, remove, onDisconnect } from 'firebase/database'
 import './GuessLeaderGame.css'
 
 const TOTAL_STEPS = 12
 const CIRCLE_SIZES = [5, 8, 12, 17, 23, 30, 38, 47, 57, 70, 85, 100]
 
-function resizeImage(file, minWidth = 1024) {
+function generateRoomCode() {
+  return String(Math.floor(100000 + Math.random() * 900000))
+}
+
+function resizeImage(file, maxWidth = 800) {
   return new Promise((resolve) => {
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -13,9 +19,9 @@ function resizeImage(file, minWidth = 1024) {
       img.onload = () => {
         let width = img.width
         let height = img.height
-        if (width < minWidth) {
-          const scale = minWidth / width
-          width = minWidth
+        if (width > maxWidth) {
+          const scale = maxWidth / width
+          width = maxWidth
           height = Math.round(height * scale)
         }
         const canvas = document.createElement('canvas')
@@ -23,7 +29,7 @@ function resizeImage(file, minWidth = 1024) {
         canvas.height = height
         const ctx = canvas.getContext('2d')
         ctx.drawImage(img, 0, 0, width, height)
-        resolve(canvas.toDataURL('image/jpeg', 0.9))
+        resolve(canvas.toDataURL('image/jpeg', 0.7))
       }
       img.src = e.target.result
     }
@@ -32,7 +38,8 @@ function resizeImage(file, minWidth = 1024) {
 }
 
 function GuessLeaderGame() {
-  const [screen, setScreen] = useState('upload')
+  const [screen, setScreen] = useState('lobby')
+  const [roomCode, setRoomCode] = useState('')
   const [images, setImages] = useState([])
   const [positionIndex, setPositionIndex] = useState(0)
   const [currentRound, setCurrentRound] = useState(0)
@@ -40,11 +47,15 @@ function GuessLeaderGame() {
   const [showComplete, setShowComplete] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const [glowSize, setGlowSize] = useState(0)
+  const [isGameReady, setIsGameReady] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const fileInputRef = useRef(null)
   const imageContainerRef = useRef(null)
   const autoNextTimerRef = useRef(null)
   const revealTimerRef = useRef(null)
+  const disconnectRefs = useRef([])
 
   // Handle file upload
   const handleFiles = async (files) => {
@@ -91,44 +102,121 @@ function GuessLeaderGame() {
     })
   }
 
+  // Create room
+  async function createRoom() {
+    setIsLoading(true)
+    setError('')
+    try {
+      const code = generateRoomCode()
+      const roomRef = ref(database, `rooms/guessLeader/${code}`)
+      const snapshot = await get(roomRef)
+
+      if (snapshot.exists()) {
+        setIsLoading(false)
+        return createRoom()
+      }
+
+      await set(roomRef, {
+        status: 'setting',
+        createdAt: Date.now(),
+      })
+
+      const disconnectRefObj = onDisconnect(roomRef)
+      disconnectRefObj.remove()
+      disconnectRefs.current.push(() => remove(roomRef))
+
+      setRoomCode(code)
+      setScreen('upload')
+    } catch (e) {
+      setError('방을 만들 수 없습니다. 인터넷 연결을 확인해주세요.')
+    }
+    setIsLoading(false)
+  }
+
+  // Save images to Firebase and start game
+  async function saveAndStartGame() {
+    setIsLoading(true)
+    try {
+      await set(ref(database, `rooms/guessLeader/${roomCode}`), {
+        status: 'playing',
+        images: images,
+        currentRound: 0,
+        currentStep: 0,
+        showComplete: false,
+        totalRounds: images.length,
+        createdAt: Date.now(),
+      })
+      setCurrentRound(0)
+      setCurrentStep(0)
+      setShowComplete(false)
+      setScreen('game')
+    } catch (e) {
+      setError('게임을 시작할 수 없습니다.')
+    }
+    setIsLoading(false)
+  }
+
+  // Sync game state to Firebase
+  async function syncGameState(updates) {
+    if (!roomCode) return
+    try {
+      const roomRef = ref(database, `rooms/guessLeader/${roomCode}`)
+      const snapshot = await get(roomRef)
+      if (snapshot.exists()) {
+        await set(roomRef, { ...snapshot.val(), ...updates })
+      }
+    } catch (e) {
+      console.error('Sync error:', e)
+    }
+  }
+
   // Game step navigation
   const nextStep = useCallback(() => {
     if (currentStep < TOTAL_STEPS - 1 && !showComplete) {
-      setCurrentStep(prev => prev + 1)
+      const newStep = currentStep + 1
+      setCurrentStep(newStep)
+      syncGameState({ currentStep: newStep })
     }
-  }, [currentStep, showComplete])
+  }, [currentStep, showComplete, roomCode])
 
   const prevStep = useCallback(() => {
     if (currentStep > 0 && !showComplete) {
-      setCurrentStep(prev => prev - 1)
+      const newStep = currentStep - 1
+      setCurrentStep(newStep)
+      syncGameState({ currentStep: newStep })
     }
-  }, [currentStep, showComplete])
+  }, [currentStep, showComplete, roomCode])
+
+  // Reveal answer
+  const revealAnswer = useCallback(() => {
+    setShowComplete(true)
+    syncGameState({ showComplete: true })
+  }, [roomCode])
 
   // Show complete after reaching last step
   useEffect(() => {
     if (currentStep !== TOTAL_STEPS - 1 || screen !== 'game') return
 
-    revealTimerRef.current = setTimeout(() => setShowComplete(true), 800)
+    revealTimerRef.current = setTimeout(() => {
+      setShowComplete(true)
+      syncGameState({ showComplete: true })
+    }, 800)
     return () => {
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current)
     }
   }, [currentStep, screen])
 
-  // Auto-advance after complete (not last round)
+  // Game ready delay (prevent image flash before clipPath applies)
   useEffect(() => {
-    if (!showComplete || screen !== 'game') return
-    if (currentRound >= images.length - 1) return
-
-    autoNextTimerRef.current = setTimeout(() => {
-      setShowComplete(false)
-      setCurrentRound(prev => prev + 1)
-      setCurrentStep(0)
-    }, 2000)
-
-    return () => {
-      if (autoNextTimerRef.current) clearTimeout(autoNextTimerRef.current)
+    if (screen !== 'game') {
+      setIsGameReady(false)
+      return
     }
-  }, [showComplete, screen, currentRound, images.length])
+
+    // Delay to ensure clipPath is applied before showing image
+    const timer = setTimeout(() => setIsGameReady(true), 150)
+    return () => clearTimeout(timer)
+  }, [screen, currentRound])
 
   // Glow size calculation
   useEffect(() => {
@@ -167,29 +255,46 @@ function GuessLeaderGame() {
     return () => {
       if (autoNextTimerRef.current) clearTimeout(autoNextTimerRef.current)
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current)
+      disconnectRefs.current.forEach((fn) => {
+        try { fn() } catch (e) { /* ignore */ }
+      })
     }
   }, [])
 
-  const handleNextRound = () => {
+  const handleNextRound = async () => {
     if (autoNextTimerRef.current) clearTimeout(autoNextTimerRef.current)
     setShowComplete(false)
+    setIsGameReady(false)
+
     if (currentRound >= images.length - 1) {
+      // End game
+      await syncGameState({ status: 'ended', showComplete: false })
       resetGame()
     } else {
-      setCurrentRound(prev => prev + 1)
+      const newRound = currentRound + 1
+      setCurrentRound(newRound)
       setCurrentStep(0)
+      await syncGameState({ currentRound: newRound, currentStep: 0, showComplete: false })
     }
   }
 
   const resetGame = () => {
     if (autoNextTimerRef.current) clearTimeout(autoNextTimerRef.current)
     if (revealTimerRef.current) clearTimeout(revealTimerRef.current)
+    if (roomCode) {
+      remove(ref(database, `rooms/guessLeader/${roomCode}`))
+    }
     setImages([])
     setCurrentRound(0)
     setCurrentStep(0)
     setPositionIndex(0)
     setShowComplete(false)
-    setScreen('upload')
+    setRoomCode('')
+    setScreen('lobby')
+  }
+
+  function copyRoomCode() {
+    navigator.clipboard?.writeText(roomCode)
   }
 
   const currentImage = images[currentRound] || {}
@@ -202,16 +307,50 @@ function GuessLeaderGame() {
     <div className="glg">
       <div className="glg__bg"></div>
 
-      {/* Upload Screen */}
-      {screen === 'upload' && (
-        <div className="glg__screen glg__upload">
+      {/* Lobby Screen */}
+      {screen === 'lobby' && (
+        <div className="glg__screen glg__lobby">
           <Link to="/recreation" className="glg__back-link">← 레크레이션 목록</Link>
           <h1 className="glg__title">1교시 돋보기 탐구생활</h1>
           <p className="glg__subtitle">점점 커지는 원 안에서 사진 속 인물을 맞혀보세요!</p>
 
-          <div className="glg__admin-badge">
-            ⚙️ <strong>진행자 설정 화면</strong> - 참가자들이 보지 않도록 주의하세요!
+          {error && <div className="glg__error">{error}</div>}
+
+          <div className="glg__lobby-card">
+            <div className="glg__lobby-card-icon">🎤</div>
+            <h3 className="glg__lobby-card-title">호스트</h3>
+            <p className="glg__lobby-card-desc">사진을 업로드하고 게임을 진행합니다</p>
+            <button
+              className="glg__btn glg__btn--primary"
+              onClick={createRoom}
+              disabled={isLoading}
+            >
+              {isLoading ? '생성 중...' : '방 만들기'}
+            </button>
           </div>
+        </div>
+      )}
+
+      {/* Upload Screen */}
+      {screen === 'upload' && (
+        <div className="glg__screen glg__upload">
+          <div className="glg__admin-badge">
+            🎤 <strong>호스트 화면</strong> - 프로젝터에는 디스플레이 화면을 띄우세요!
+          </div>
+
+          <div className="glg__projector-link-section">
+            <h3 className="glg__projector-link-title">📺 프로젝터 화면 URL</h3>
+            <div
+              className="glg__projector-link"
+              onClick={() => navigator.clipboard?.writeText(`${window.location.origin}${window.location.pathname}#/recreation/guess-leader/display?room=${roomCode}`)}
+              title="클릭하여 복사"
+            >
+              {`${window.location.origin}/...display?room=${roomCode}`}
+            </div>
+            <p className="glg__room-code-hint">터치하면 복사됩니다</p>
+          </div>
+
+          <h2 className="glg__section-title">사진 업로드</h2>
 
           <div
             className={`glg__upload-area ${isDragOver ? 'glg__upload-area--dragover' : ''}`}
@@ -253,13 +392,18 @@ function GuessLeaderGame() {
             </>
           )}
 
-          <button
-            className="glg__btn glg__btn--primary"
-            disabled={images.length === 0}
-            onClick={() => { setPositionIndex(0); setScreen('position') }}
-          >
-            다음
-          </button>
+          <div className="glg__actions">
+            <button className="glg__btn glg__btn--secondary" onClick={resetGame}>
+              나가기
+            </button>
+            <button
+              className="glg__btn glg__btn--primary"
+              disabled={images.length === 0}
+              onClick={() => { setPositionIndex(0); setScreen('position') }}
+            >
+              다음
+            </button>
+          </div>
         </div>
       )}
 
@@ -267,7 +411,7 @@ function GuessLeaderGame() {
       {screen === 'position' && (
         <div className="glg__screen glg__position">
           <div className="glg__admin-badge">
-            ⚙️ <strong>진행자 설정 중</strong> - 화면 가리고 진행하세요
+            🎤 <strong>호스트 설정 중</strong> - 프로젝터에는 대기 화면이 표시됩니다
           </div>
 
           <h2 className="glg__position-title">📍 시작 위치 선택</h2>
@@ -298,7 +442,7 @@ function GuessLeaderGame() {
               className="glg__btn glg__btn--primary"
               onClick={() => {
                 if (positionIndex < images.length - 1) setPositionIndex(prev => prev + 1)
-                else setScreen('intro')
+                else setScreen('ready')
               }}
             >
               {positionIndex === images.length - 1 ? '세팅 완료' : '다음'} ({positionIndex + 1}/{images.length})
@@ -307,39 +451,49 @@ function GuessLeaderGame() {
         </div>
       )}
 
-      {/* Intro Screen */}
-      {screen === 'intro' && (
-        <div className="glg__screen glg__intro">
-          <h1 className="glg__intro-title">1교시 돋보기 탐구생활</h1>
-          <p className="glg__intro-subtitle">점점 커지는 원 안에서<br />사진 속 인물을 맞혀보세요!</p>
+      {/* Ready Screen */}
+      {screen === 'ready' && (
+        <div className="glg__screen glg__ready">
+          <div className="glg__admin-badge">
+            🎤 <strong>호스트 화면</strong>
+          </div>
+
+          <h1 className="glg__intro-title">준비 완료!</h1>
+          <p className="glg__intro-subtitle">프로젝터 연결을 확인하고<br />게임을 시작하세요</p>
 
           <div className="glg__intro-info">
             <div className="glg__intro-count">{images.length} ROUND{images.length > 1 ? 'S' : ''}</div>
             <div className="glg__intro-label">준비되었습니다</div>
           </div>
 
-          <div className="glg__intro-instructions">
-            <h3>게임 방법</h3>
-            <ul>
-              <li>작은 원에서 시작해 점점 확대됩니다</li>
-              <li>화살표(→) 또는 스페이스바로 진행</li>
-              <li>누구의 얼굴인지 맞춰보세요!</li>
-              <li>각 라운드마다 12단계로 확대됩니다</li>
-            </ul>
+          <div className="glg__actions">
+            <button className="glg__btn glg__btn--secondary" onClick={() => setScreen('position')}>
+              다시 설정
+            </button>
+            <button
+              className="glg__btn glg__btn--primary glg__btn--large"
+              onClick={saveAndStartGame}
+              disabled={isLoading}
+            >
+              {isLoading ? '준비 중...' : '🎮 게임 시작하기'}
+            </button>
           </div>
-
-          <button
-            className="glg__btn glg__btn--primary glg__btn--large"
-            onClick={() => { setCurrentRound(0); setCurrentStep(0); setShowComplete(false); setScreen('game') }}
-          >
-            🎮 게임 시작하기
-          </button>
         </div>
       )}
 
       {/* Game Screen */}
       {screen === 'game' && (
         <div className="glg__screen glg__game">
+          <div className="glg__admin-badge glg__admin-badge--game">
+            🎤 호스트 컨트롤
+          </div>
+
+          {/* Host thumbnail */}
+          <div className="glg__host-thumbnail">
+            <img src={currentImage.url} alt="정답" />
+            <span className="glg__host-thumbnail-label">정답</span>
+          </div>
+
           <div className="glg__game-container">
             <div className="glg__progress-info">
               <div className="glg__round-display">ROUND {currentRound + 1}</div>
@@ -351,7 +505,7 @@ function GuessLeaderGame() {
 
             <div className="glg__image-container" ref={imageContainerRef}>
               <img
-                className="glg__full-image"
+                className={`glg__full-image ${isGameReady ? 'glg__full-image--ready' : ''}`}
                 src={currentImage.url}
                 alt="게임 이미지"
                 style={{
@@ -359,7 +513,7 @@ function GuessLeaderGame() {
                 }}
               />
               <div
-                className="glg__glow-effect"
+                className={`glg__glow-effect ${isGameReady ? 'glg__glow-effect--ready' : ''}`}
                 style={{
                   width: `${glowSize}px`,
                   height: `${glowSize}px`,
@@ -371,9 +525,9 @@ function GuessLeaderGame() {
 
             <div className="glg__controls">
               <button className="glg__btn glg__btn--secondary glg__btn--small" onClick={resetGame}>
-                다시 시작
+                게임 종료
               </button>
-              <button className="glg__btn glg__btn--reveal glg__btn--small" onClick={() => setShowComplete(true)}>
+              <button className="glg__btn glg__btn--reveal glg__btn--small" onClick={revealAnswer}>
                 정답 공개
               </button>
               <button className="glg__btn glg__btn--primary glg__btn--small" onClick={nextStep}>
@@ -392,9 +546,6 @@ function GuessLeaderGame() {
               <div className="glg__complete-content">
                 <div className="glg__complete-title">🎉 정답!</div>
                 <img className="glg__complete-image" src={currentImage.url} alt="완성" />
-                {currentRound < images.length - 1 && (
-                  <p className="glg__auto-next">⏱️ 잠시 후 다음 라운드로 이동합니다...</p>
-                )}
                 <button className="glg__btn glg__btn--primary" onClick={handleNextRound}>
                   {currentRound >= images.length - 1
                     ? '🎊 모든 라운드 완료! 다시 하기'

@@ -119,6 +119,9 @@ function GoldenBellDisplay() {
       if (data.phase === 'reviewing') {
         setCorrectAnswer(data.correctAnswer || '')
         setPhase('reviewing')
+      } else if (data.phase === 'revealing') {
+        setCorrectAnswer('')
+        setPhase('revealing')
       } else if (data.phase === 'answering') {
         setCorrectAnswer('')
         setPhase('answering')
@@ -270,82 +273,87 @@ function GoldenBellDisplay() {
 
           {/* Question display */}
           {phase !== 'waiting' && roomStatus === 'active' && questionNumber > 0 && (
-            <>
-              <div className="gb__display-question">
-                <div className="gb__question-badge gb__question-badge--large">Q{questionNumber}</div>
-                <p className="gb__display-question-text">{questionText}</p>
-              </div>
-
-              {/* Correct answer reveal (reviewing phase) */}
-              {phase === 'reviewing' && correctAnswer && (
-                <div className="gb__display-answer-reveal">
-                  <span className="gb__display-answer-label">정답</span>
-                  <span className="gb__display-answer-text">{correctAnswer}</span>
-                  <span className="gb__display-answer-points">{pointValue}점</span>
+            <div className="gb__display-layout">
+              <div className="gb__display-main">
+                <div className="gb__display-question">
+                  <div className="gb__question-badge gb__question-badge--large">Q{questionNumber}</div>
+                  <p className="gb__display-question-text">{questionText}</p>
                 </div>
-              )}
 
-              {/* Answers grid */}
-              <div className="gb__display-answers">
-                <h3 className="gb__display-answers-title">
-                  {phase === 'answering' ? '참가자 답변' : '채점 결과'}
-                  {phase === 'answering' && <span className="gb__display-answers-count">({answeredCount}/{totalCount})</span>}
-                </h3>
-                {phase === 'reviewing' && (
-                  <p className="gb__answers-hint">빠른 정답자 1~5등에게 보너스 점수 지급 (+5, +4, +3, +2, +1)</p>
+                {/* Correct answer reveal (reviewing phase) */}
+                {phase === 'reviewing' && correctAnswer && (
+                  <div className="gb__display-answer-reveal">
+                    <span className="gb__display-answer-label">정답</span>
+                    <span className="gb__display-answer-text">{correctAnswer}</span>
+                  </div>
                 )}
-                {answers.length === 0 ? (
-                  <div className="gb__display-no-answers">
-                    <div className="gb__waiting-dots">
-                      <span></span><span></span><span></span>
+
+                {/* Answers grid */}
+                <div className="gb__display-answers">
+                  <h3 className="gb__display-answers-title">
+                    {phase === 'reviewing' ? '채점 결과' : '참가자 답변'}
+                    {phase === 'answering' && <span className="gb__display-answers-count">({answeredCount}/{totalCount})</span>}
+                  </h3>
+                  {phase === 'reviewing' && (
+                    <p className="gb__answers-hint">1등 10점 / 2등 7점 / 3등 4점 / 정답 1점</p>
+                  )}
+                  {answers.length === 0 ? (
+                    <div className="gb__display-no-answers">
+                      <div className="gb__waiting-dots">
+                        <span></span><span></span><span></span>
+                      </div>
+                      <p>답변을 기다리는 중...</p>
                     </div>
-                    <p>답변을 기다리는 중...</p>
-                  </div>
-                ) : (
-                  <div className="gb__display-answers-grid">
-                    {answers.map((a) => {
-                      const correct = phase === 'reviewing' ? isAnswerCorrect(a) : null
-                      const speedRank = scores[a.participantId]?.lastRank
-                      const speedBonus = scores[a.participantId]?.lastSpeedBonus
-                      const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
-                      return (
-                        <div
-                          key={a.id}
-                          className={`gb__display-answer-card ${
-                            phase === 'answering' ? 'gb__display-answer-card--submitted' :
-                            correct === true ? 'gb__display-answer-card--correct' :
-                            correct === false ? 'gb__display-answer-card--wrong' : ''
-                          }`}
-                        >
-                          <div className="gb__display-answer-nickname">
-                            {phase === 'reviewing' && correct === true && <span>✅ </span>}
-                            {phase === 'reviewing' && correct === false && <span>❌ </span>}
-                            {a.nickname}
-                            {phase === 'reviewing' && speedRank && (
-                              <span className="gb__speed-rank gb__speed-rank--large">{rankEmojis[speedRank - 1]} +{speedBonus}</span>
-                            )}
+                  ) : (
+                    <div className="gb__display-answers-grid">
+                      {answers.map((a) => {
+                        const correct = phase === 'reviewing' ? isAnswerCorrect(a) : null
+                        const lastRank = scores[a.participantId]?.lastRank
+                        const lastPoints = scores[a.participantId]?.lastPoints
+                        const rankEmojis = ['🥇', '🥈', '🥉']
+                        return (
+                          <div
+                            key={a.id}
+                            className={`gb__display-answer-card ${
+                              phase === 'answering' ? 'gb__display-answer-card--submitted' :
+                              phase === 'revealing' ? '' :
+                              correct === true ? 'gb__display-answer-card--correct' :
+                              correct === false ? 'gb__display-answer-card--wrong' : ''
+                            }`}
+                          >
+                            <div className="gb__display-answer-nickname">
+                              {phase === 'reviewing' && correct === true && <span>✅ </span>}
+                              {phase === 'reviewing' && correct === false && <span>❌ </span>}
+                              {a.nickname}
+                              {phase === 'reviewing' && lastRank && (
+                                <span className="gb__speed-rank gb__speed-rank--large">{rankEmojis[lastRank - 1]} +{lastPoints}</span>
+                              )}
+                              {phase === 'reviewing' && correct === true && !lastRank && lastPoints && (
+                                <span className="gb__speed-rank gb__speed-rank--large">+{lastPoints}</span>
+                              )}
+                            </div>
+                            <div className="gb__display-answer-text">
+                              {phase === 'answering' ? (
+                                <span className="gb__display-answer-hidden">
+                                  <span className="gb__answer-hidden-icon">✅</span>
+                                  <span>제출 완료</span>
+                                </span>
+                              ) : (
+                                a.text
+                              )}
+                            </div>
+                            <div className="gb__display-answer-score">
+                              {scores[a.participantId]?.total || 0}점
+                            </div>
                           </div>
-                          <div className="gb__display-answer-text">
-                            {phase === 'answering' ? (
-                              <span className="gb__display-answer-hidden">
-                                <span className="gb__answer-hidden-icon">✅</span>
-                                <span>제출 완료</span>
-                              </span>
-                            ) : (
-                              a.text
-                            )}
-                          </div>
-                          <div className="gb__display-answer-score">
-                            {scores[a.participantId]?.total || 0}점
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Mini scoreboard */}
+              {/* Mini scoreboard - right side */}
               {scoreboard.length > 0 && (
                 <div className="gb__display-scoreboard">
                   <h3 className="gb__display-scoreboard-title">현재 순위</h3>
@@ -362,7 +370,7 @@ function GoldenBellDisplay() {
                   </div>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       )}

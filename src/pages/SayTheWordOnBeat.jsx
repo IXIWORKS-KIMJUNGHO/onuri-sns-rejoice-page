@@ -379,9 +379,18 @@ function SayTheWordOnBeat() {
     const newPhotos = []
     for (const file of imageFiles) {
       const url = await resizeImage(file)
-      newPhotos.push(url)
+      // 파일 이름에서 확장자 제거하여 기본 이름으로 사용
+      const baseName = file.name.replace(/\.[^/.]+$/, '')
+      newPhotos.push({ url, name: baseName })
     }
     setUploadedPhotos(prev => [...prev, ...newPhotos])
+  }
+
+  // 사진 이름 업데이트
+  const updatePhotoName = (index, name) => {
+    setUploadedPhotos(prev => prev.map((photo, i) =>
+      i === index ? { ...photo, name } : photo
+    ))
   }
 
   const handleDragOver = (e) => {
@@ -488,7 +497,15 @@ function SayTheWordOnBeat() {
           <div className="stw__preview-grid">
             {uploadedPhotos.map((photo, index) => (
               <div key={index} className="stw__preview-item">
-                <img src={photo} alt={`업로드 ${index + 1}`} />
+                <img src={photo.url} alt={`업로드 ${index + 1}`} />
+                <input
+                  type="text"
+                  className="stw__preview-name"
+                  placeholder="이름 입력"
+                  value={photo.name}
+                  onChange={(e) => updatePhotoName(index, e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
                 <button
                   className="stw__preview-remove"
                   onClick={(e) => {
@@ -504,30 +521,6 @@ function SayTheWordOnBeat() {
         </div>
       )}
 
-      {/* 난이도 선택 */}
-      <div className="stw__difficulty-section">
-        <p className="stw__difficulty-label">난이도 선택</p>
-        <div className="stw__difficulty-buttons">
-          <button
-            className={`stw__difficulty-btn ${difficulty === 'easy' ? 'stw__difficulty-btn--active' : ''}`}
-            onClick={() => setDifficulty('easy')}
-          >
-            <span className="stw__difficulty-name">쉬움</span>
-          </button>
-          <button
-            className={`stw__difficulty-btn ${difficulty === 'normal' ? 'stw__difficulty-btn--active' : ''}`}
-            onClick={() => setDifficulty('normal')}
-          >
-            <span className="stw__difficulty-name">보통</span>
-          </button>
-          <button
-            className={`stw__difficulty-btn ${difficulty === 'hard' ? 'stw__difficulty-btn--active' : ''}`}
-            onClick={() => setDifficulty('hard')}
-          >
-            <span className="stw__difficulty-name">어려움</span>
-          </button>
-        </div>
-      </div>
 
       {/* 게임 시작 버튼 */}
       <button
@@ -548,43 +541,12 @@ function SayTheWordOnBeat() {
   // 게임 화면
   const renderGameScreen = () => (
     <div className="stw__game">
-      {/* 4개 모서리 비트 아이콘 */}
-      <img
-        src="/beat-icon.png"
-        alt=""
-        className="stw__beat-icon stw__beat-icon--top-left"
-        style={{ animationDuration: `${beatDuration}ms`, '--rotate': '-15deg' }}
-      />
-      <img
-        src="/beat-icon.png"
-        alt=""
-        className="stw__beat-icon stw__beat-icon--top-right"
-        style={{ animationDuration: `${beatDuration}ms`, '--rotate': '12deg' }}
-      />
-      <img
-        src="/beat-icon.png"
-        alt=""
-        className="stw__beat-icon stw__beat-icon--bottom-left"
-        style={{ animationDuration: `${beatDuration}ms`, '--rotate': '18deg' }}
-      />
-      <img
-        src="/beat-icon.png"
-        alt=""
-        className="stw__beat-icon stw__beat-icon--bottom-right"
-        style={{ animationDuration: `${beatDuration}ms`, '--rotate': '-10deg' }}
-      />
-
       {/* 헤더 */}
       <div className="stw__game-header">
         <div className="stw__level-display">
           <span className="stw__level-label">Round {round}</span>
           <span className="stw__level-separator">-</span>
           <span className="stw__level-cycle">{cycle}/{CYCLES_PER_ROUND}</span>
-        </div>
-        <div className="stw__bpm-display">
-          {currentDifficulty === 'easy' && '쉬움'}
-          {currentDifficulty === 'normal' && '보통'}
-          {currentDifficulty === 'hard' && '어려움'}
         </div>
       </div>
 
@@ -596,6 +558,31 @@ function SayTheWordOnBeat() {
 
       {/* 2x4 그리드 */}
       <div className="stw__grid-container">
+        {/* 4개 모서리 비트 아이콘 */}
+        <img
+          src="/beat-icon.png"
+          alt=""
+          className="stw__beat-icon stw__beat-icon--top-left"
+          style={{ animationDuration: `${beatDuration}ms`, '--rotate': '-15deg' }}
+        />
+        <img
+          src="/beat-icon.png"
+          alt=""
+          className="stw__beat-icon stw__beat-icon--top-right"
+          style={{ animationDuration: `${beatDuration}ms`, '--rotate': '12deg' }}
+        />
+        <img
+          src="/beat-icon.png"
+          alt=""
+          className="stw__beat-icon stw__beat-icon--bottom-left"
+          style={{ animationDuration: `${beatDuration}ms`, '--rotate': '18deg' }}
+        />
+        <img
+          src="/beat-icon.png"
+          alt=""
+          className="stw__beat-icon stw__beat-icon--bottom-right"
+          style={{ animationDuration: `${beatDuration}ms`, '--rotate': '-10deg' }}
+        />
         <div className="stw__photo-grid">
           {roundPhotos.map((photo, index) => {
             const isVisible = phase === 'challenge' || index < visiblePhotoCount
@@ -604,7 +591,8 @@ function SayTheWordOnBeat() {
                 key={index}
                 className={`stw__grid-item ${currentIndex === index ? 'stw__grid-item--active' : ''} ${phase === 'preview' && isVisible ? 'stw__grid-item--appear' : ''} ${phase === 'preview' && !isVisible ? 'stw__grid-item--hidden' : ''}`}
               >
-                <img src={photo} alt={`사진 ${index + 1}`} />
+                <img src={photo.url} alt={`사진 ${index + 1}`} />
+                {photo.name && <span className="stw__grid-name">{photo.name}</span>}
               </div>
             )
           })}

@@ -1473,14 +1473,27 @@
   align-self: flex-end;
 }
 
+/* Display Layout - 2 columns */
+.gb__display-layout {
+  display: flex;
+  gap: var(--spacing-xl);
+  align-items: flex-start;
+  width: 100%;
+}
+
+.gb__display-main {
+  flex: 1;
+  min-width: 0;
+}
+
 /* Display Scoreboard */
 .gb__display-scoreboard {
+  flex-shrink: 0;
+  width: 280px;
   background: rgba(251, 191, 36, 0.08);
   border: 2px solid rgba(251, 191, 36, 0.25);
   border-radius: var(--radius-xl);
   padding: var(--spacing-lg);
-  max-width: 500px;
-  margin: 0 auto;
 }
 
 .gb__display-scoreboard-title {
@@ -1543,6 +1556,18 @@
 }
 
 /* Display Mode Responsive */
+@media (max-width: 1023px) {
+  .gb__display-layout {
+    flex-direction: column;
+  }
+
+  .gb__display-scoreboard {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
 @media (min-width: 768px) {
   .gb--display {
     padding-top: var(--spacing-lg);

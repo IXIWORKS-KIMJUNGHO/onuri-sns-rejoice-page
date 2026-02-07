@@ -4,7 +4,7 @@ import './RecreationPage.css'
 const recreations = [
   {
     id: 1,
-    name: '1교시 돋보기로 보는 탐구생활: 확대사진 맞추기',
+    name: '1교시 돋보기로 보는 탐구생활',
     participants: '제한 없음',
     duration: '15~30분',
     description: '점점 커지는 원 안에서 사진 속 인물을 맞히는 게임입니다. 사진을 업로드하고 확대 시작 위치를 설정하면, 12단계로 점점 드러나는 사진 속 인물을 맞춰보세요!',
@@ -18,7 +18,7 @@ const recreations = [
   },
   {
     id: 2,
-    name: '2교시 리듬 탐구생활: 박자에 맞춰 말해봐',
+    name: '2교시 리듬 탐구생활',
     participants: '1명씩 도전',
     duration: '10~20분',
     description: '비트에 맞춰 사진 속 단어를 말하는 리듬 게임입니다. 사진을 업로드하고 난이도를 선택하면, 점점 빨라지는 비트에 맞춰 클리어해보세요!',
@@ -98,7 +98,7 @@ const recreations = [
       '나머지 팀원들이 그림을 보고 정답을 맞춥니다',
       '그림 그리는 사람은 문제마다 교체됩니다',
     ],
-    link: null,
+    link: '/recreation/catch-mind',
   },
 ]
 

@@ -12,11 +12,13 @@ const PlacesPage = lazy(() => import('./pages/PlacesPage'))
 const EventsPage = lazy(() => import('./pages/EventsPage'))
 const RecreationPage = lazy(() => import('./pages/RecreationPage'))
 const GuessLeaderGame = lazy(() => import('./pages/GuessLeaderGame'))
+const GuessLeaderDisplay = lazy(() => import('./pages/GuessLeaderDisplay'))
 const GoldenBellGame = lazy(() => import('./pages/GoldenBellGame'))
 const GoldenBellDisplay = lazy(() => import('./pages/GoldenBellDisplay'))
 const SayTheWordOnBeat = lazy(() => import('./pages/SayTheWordOnBeat'))
 const EmojiSongGame = lazy(() => import('./pages/EmojiSongGame'))
 const BodyLanguageGame = lazy(() => import('./pages/BodyLanguageGame'))
+const CatchMindGame = lazy(() => import('./pages/CatchMindGame'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 // Loading fallback component
@@ -42,11 +44,13 @@ function App() {
             <Route path="events" element={<EventsPage />} />
             <Route path="recreation" element={<RecreationPage />} />
             <Route path="recreation/guess-leader" element={<GuessLeaderGame />} />
+            <Route path="recreation/guess-leader/display" element={<GuessLeaderDisplay />} />
             <Route path="recreation/golden-bell" element={<GoldenBellGame />} />
             <Route path="recreation/golden-bell/display" element={<GoldenBellDisplay />} />
             <Route path="recreation/say-the-word" element={<SayTheWordOnBeat />} />
             <Route path="recreation/emoji-song" element={<EmojiSongGame />} />
             <Route path="recreation/body-language" element={<BodyLanguageGame />} />
+            <Route path="recreation/catch-mind" element={<CatchMindGame />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
