@@ -422,12 +422,15 @@ function GoldenBellGame() {
     // Award points by rank: 1st=10, 2nd=7, 3rd=4, others=1
     for (let i = 0; i < correctAnswers.length; i++) {
       const a = correctAnswers[i]
-      const current = scores[a.participantId]?.total || 0
       const points = i < 3 ? rankPoints[i] : 1
+
+      // Read current score directly from Firebase to avoid stale state
+      const scoreSnapshot = await get(ref(database, `rooms/${roomCode}/scores/${a.participantId}`))
+      const currentScore = scoreSnapshot.val()?.total || 0
 
       await set(ref(database, `rooms/${roomCode}/scores/${a.participantId}`), {
         nickname: a.nickname,
-        total: current + points,
+        total: currentScore + points,
         lastPoints: points,
         lastRank: i < 3 ? i + 1 : null,
       })
@@ -488,10 +491,16 @@ function GoldenBellGame() {
     const value = parseInt(scoreInputs[pId], 10)
     if (isNaN(value)) return
 
-    const current = scores[pId]?.total || 0
+    // Read current score directly from Firebase to avoid stale state
+    const scoreSnapshot = await get(ref(database, `rooms/${roomCode}/scores/${pId}`))
+    const currentData = scoreSnapshot.val()
+    const currentTotal = currentData?.total || 0
+
     await set(ref(database, `rooms/${roomCode}/scores/${pId}`), {
       nickname: pNickname,
-      total: current + value,
+      total: currentTotal + value,
+      lastPoints: currentData?.lastPoints,
+      lastRank: currentData?.lastRank,
     })
     setScoreInputs((prev) => ({ ...prev, [pId]: '' }))
   }
@@ -1122,6 +1131,9 @@ function GoldenBellGame() {
                 const myCorrect = correctAnswer
                   ? normalizeAnswer(answerText) === normalizeAnswer(correctAnswer)
                   : null
+                const myLastRank = scores[participantId]?.lastRank
+                const myLastPoints = scores[participantId]?.lastPoints
+                const rankEmojis = ['🥇', '🥈', '🥉']
                 return (
                   <div className="gb__submitted">
                     <div className="gb__submitted-icon">
@@ -1130,6 +1142,11 @@ function GoldenBellGame() {
                     <p className="gb__submitted-text">
                       {myCorrect === true ? '정답!' : myCorrect === false ? '오답' : '제출 완료'}
                     </p>
+                    {myCorrect === true && myLastPoints && (
+                      <div className="gb__submitted-points">
+                        {myLastRank ? `${rankEmojis[myLastRank - 1]} ` : ''}+{myLastPoints}점 획득!
+                      </div>
+                    )}
                     <div className="gb__submitted-answer">내 답: {answerText}</div>
                   </div>
                 )

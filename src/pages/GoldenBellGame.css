@@ -1093,6 +1093,20 @@
   margin-bottom: var(--spacing-md);
 }
 
+.gb__submitted-points {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: var(--spacing-md);
+  animation: gb-pulse 0.5s ease-out;
+}
+
+@keyframes gb-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
 .gb__submitted-answer {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);

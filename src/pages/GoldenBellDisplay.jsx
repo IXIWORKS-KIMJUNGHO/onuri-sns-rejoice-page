@@ -170,6 +170,11 @@ function GoldenBellDisplay() {
 
   // Check if answer is correct
   function isAnswerCorrect(answer) {
+    if (currentQuestionType === 'objective') {
+      if (answer.choiceIndex == null) return null
+      if (!correctAnswer) return null
+      return normalizeAnswer(answer.text) === normalizeAnswer(correctAnswer)
+    }
     if (!correctAnswer) return null
     return normalizeAnswer(answer.text) === normalizeAnswer(correctAnswer)
   }
